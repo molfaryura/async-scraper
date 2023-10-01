@@ -37,6 +37,18 @@ class ScrapingForEducation:
         return countries_population
 
     @staticmethod
+    async def how_much_books(html):
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        header = soup.find(class_='page-header action').get_text(strip=True)
+
+        books = soup.find(
+            class_='form-horizontal').get_text().lstrip().split()[0]
+
+        return header, books
+
+    @staticmethod
     async def find_python_programmer_job_for_entry_level(html):
         jobs_for_entry_level = 0
         soup = BeautifulSoup(html, 'html.parser')
@@ -56,7 +68,7 @@ class ScrapingForEducation:
         with open(file_name, 'r') as file:
             content = file.readlines()
             for website in content:
-                websites.append(website)
+                websites.append(website.strip())
 
         return websites
 
@@ -65,7 +77,7 @@ class ScrapingForEducation:
         html = await ScrapingForEducation.fetch_data(url)
 
         if html:
-            if 'scrapethissite' and 'simple' in url:
+            if url == 'https://www.scrapethissite.com/pages/simple/':
                 countries_population = await ScrapingForEducation.extract_population(html)
 
                 if countries_population:
@@ -76,13 +88,18 @@ class ScrapingForEducation:
                 else:
                     print(f'From {url}: No population data found on the page.')
 
-            elif 'fake-jobs' and 'realpython' in url:
+            elif url == 'https://realpython.github.io/fake-jobs/':
                 jobs_for_entry_level = await ScrapingForEducation.find_python_programmer_job_for_entry_level(html)
                 if jobs_for_entry_level:
                     print(
                         f"I can find {jobs_for_entry_level} opportunities for entry-level python developers")
                 else:
                     print('Failed to get job data. Please check again.')
+
+            elif 'https://books.toscrape.com/catalogue/category/books/':
+                header, books = await ScrapingForEducation.how_much_books(html)
+                print(f'{header} section contain {books} books')
+
             else:
                 print(f'Do not have scraping method for {url} yet!')
 
@@ -93,5 +110,3 @@ class ScrapingForEducation:
 
         tasks = [self.scrape_website(url) for url in self.websites]
         await asyncio.gather(*tasks)
-
-
