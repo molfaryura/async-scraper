@@ -108,5 +108,5 @@ class ScrapingForEducation:
 
     async def main(self):
 
-        tasks = [self.scrape_website(url) for url in self.websites]
+        tasks = [asyncio.create_task(self.scrape_website(url)) for url in self.websites]
         await asyncio.gather(*tasks)
