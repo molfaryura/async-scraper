@@ -98,7 +98,7 @@ class ScrapingForEducation:
 
             elif 'https://books.toscrape.com/catalogue/category/books/':
                 header, books = await ScrapingForEducation.how_much_books(html)
-                print(f'{header} section contain {books} books')
+                print(f'{header} section contains {books} books')
 
             else:
                 print(f'Do not have scraping method for {url} yet!')
@@ -108,5 +108,6 @@ class ScrapingForEducation:
 
     async def main(self):
 
-        tasks = [asyncio.create_task(self.scrape_website(url)) for url in self.websites]
+        tasks = [asyncio.create_task(self.scrape_website(url))
+                 for url in self.websites]
         await asyncio.gather(*tasks)
