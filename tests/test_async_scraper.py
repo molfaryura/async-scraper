@@ -1,5 +1,7 @@
 import aiohttp
 
+import asyncio
+
 import pytest
 
 import logging
@@ -55,11 +57,17 @@ async def test_launch_all_websites():
     with open('websites.txt', 'r') as file:
         content = file.readlines()
 
-    for url in content:
-        logging.info(f"Testing accessibility of {url}")
+    timeout = aiohttp.ClientTimeout(total=10)
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                assert response.status == 200, f"Failed to access {url}"
+    tasks = [asyncio.create_task(help_launch_all_websites(url=url, timeout=timeout))
+             for url in content]
+    await asyncio.gather(*tasks)
 
     logging.info("Finished test_websites_accessibility")
+
+
+async def help_launch_all_websites(url, timeout):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=url, timeout=timeout) as response:
+            logging.info(url)
+            assert response.status == 200, f"Failed to access {url}"
